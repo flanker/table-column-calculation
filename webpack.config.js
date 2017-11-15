@@ -1,5 +1,6 @@
 const path = require('path');
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
+const webpack = require('webpack');
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
   entry: {
@@ -23,6 +24,10 @@ module.exports = {
   },
   devtool: 'source-map',
   plugins: [
+    new webpack.BannerPlugin(`
+TableColumnCalculation
+https://github.com/flanker/table-column-calculation
+    `),
     new UglifyJSPlugin({
       include: /\.min\.js$/,
       sourceMap: true
