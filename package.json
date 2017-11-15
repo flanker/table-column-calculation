@@ -1,0 +1,27 @@
+{
+  "name": "table-column-calculation",
+  "version": "1.0.0",
+  "description": "Table column calculation",
+  "main": "dist/table-column-calculation.js",
+  "scripts": {
+    "build": "webpack",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "webpack",
+    "webpack-library",
+    "bundling",
+    "library"
+  ],
+  "author": "Feng Zhichao",
+  "devDependencies": {
+    "uglifyjs-webpack-plugin": "0.4.6",
+    "babel-core": "^6.18.2",
+    "babel-loader": "^6.2.7",
+    "babel-preset-es2015": "^6.18.0",
+    "babel-preset-es2015-webpack": "^6.4.3",
+    "eslint": "^3.9.1",
+    "eslint-loader": "^1.6.1",
+    "webpack": "^2.2.1"
+  }
+}
