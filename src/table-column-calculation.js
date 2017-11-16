@@ -39,10 +39,12 @@ const Calculator = class Calculator {
 };
 
 const TableCalculator = class TableCalculator {
-  constructor($table) {
-    this.$table = $table;
-    this.$table.on('change', 'td input', () => this.runCalculation());
-    this.$table.on('recalculation', () => this.runCalculation());
+  constructor(table) {
+    this.table = table;
+    let headerNodeList = this.table.querySelectorAll('thead th');
+    this.headers = Array.prototype.slice.call(headerNodeList);
+    this.table.onchange = () => this.runCalculation();
+    // this.table.on('recalculation', () => this.runCalculation());
   }
 
   init() {
@@ -54,11 +56,11 @@ const TableCalculator = class TableCalculator {
   }
 
   hasCalculation() {
-    return this.tableHeaders().toArray().some((header) => this.columnHasCalculation($(header)));
+    return this.headers.some((header) => this.columnHasCalculation(header));
   }
 
-  columnHasCalculation($header) {
-    return $header.data('operator');
+  columnHasCalculation(header) {
+    return header.dataset.operator;
   }
 
   tableHeaders() {
@@ -66,30 +68,31 @@ const TableCalculator = class TableCalculator {
   }
 
   runCalculation() {
-    this.tableHeaders().toArray().forEach((header, index) => this.runColumnCalculation($(header), index))
+    this.headers.forEach((header, index) => this.runColumnCalculation(header, index))
   }
 
-  runColumnCalculation($header, columnIndex) {
-    if (!this.columnHasCalculation($header)) {
+  runColumnCalculation(header, columnIndex) {
+    if (!this.columnHasCalculation(header)) {
       return;
     }
     let cellValues = this.getCellValues(columnIndex);
     let calculator = new Calculator(cellValues);
-    let operator = $header.data('operator');
+    let operator = header.dataset.operator;
     let result = calculator.run(operator);
     return this.renderFootCell(columnIndex, operator, result);
   }
 
   getCellValues(columnIndex) {
-    return this.$table.find(`tbody tr td:nth-child(${columnIndex + 1})`).toArray().map((cell) => this.formattedCellValue($(cell)))
+    let cellNodeList = this.table.querySelectorAll(`tbody tr td:nth-child(${columnIndex + 1})`)
+    return Array.prototype.slice.call(cellNodeList).map((cell) => this.formattedCellValue(cell))
   }
 
-  formattedCellValue($cell) {
+  formattedCellValue(cell) {
     let raw;
-    if ($cell.find('input').length > 0) {
-      raw = $cell.find('input').val();
+    if (cell.querySelector('input')) {
+      raw = cell.querySelector('input').value;
     } else {
-      raw = $cell.text().trim();
+      raw = cell.innerText.trim();
     }
     if (raw) {
       return +raw;
@@ -97,9 +100,14 @@ const TableCalculator = class TableCalculator {
   }
 
   renderFoot() {
-    this.$table.append($('<tfoot class="calculation-foot"><tr></tr></tfoot>'));
-    let $tr = this.$table.find('tfoot tr');
-    this.tableHeaders().each(() => $tr.append('<th></th>'));
+    let foot = document.createElement('tfoot');
+    foot.innerHTML = '<tr></tr>';
+    this.table.appendChild(foot);
+    let tr = this.table.querySelector('tfoot tr');
+    this.headers.forEach(() => {
+      let th = document.createElement('th');
+      tr.appendChild(th);
+    });
   }
 
   renderFootCell(columnIndex, operator, result) {
@@ -107,15 +115,14 @@ const TableCalculator = class TableCalculator {
       result = '';
     }
     let displayText = `${operator}=${result}`;
-    return this.$table.find(`tfoot tr th:nth-child(${columnIndex + 1})`).text(displayText);
+    return this.table.querySelector(`tfoot tr th:nth-child(${columnIndex + 1})`).innerText = displayText;
   }
 
 };
 
 export const init = function($tables) {
   return $tables.each(function() {
-    let $table = $(this);
-    let calculator = new TableCalculator($table);
+    let calculator = new TableCalculator(this);
     return calculator.init();
   });
 };
